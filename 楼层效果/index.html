@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        *{margin:0;padding:0;list-style:none;}
+        #nav{
+            width:100px;
+            overflow: hidden;
+            background: green;
+            position: fixed;
+            top:100px;
+            right:20px;
+        }
+        #nav li{
+            height:50px;
+            line-height: 50px;
+            border-bottom:1px solid #ccc;
+            text-align: center;
+        }
+        .item{
+            height:300px;
+            margin-top: 100px;
+            background: red;
+            text-align: center;
+            font-size: 50px;
+        }
+        
+        .bg1{
+            background: pink;
+        }
+        .bg2{
+            background: blue;
+        }
+        .bg3{
+            background: #ccc;
+        }
+        .active{
+            background: red;
+        }
+        #main{
+            padding-bottom: 1000px;
+        }
+
+
+    </style>
+</head>
+<body>
+    <ul id="nav">
+        <li>1</li>
+        <li>2</li>
+        <li>3</li>
+        <li>4</li>
+    </ul>
+    <div id="main">
+        <div class="item bg1">1</div>
+        <div class="item bg2">2</div>
+        <div class="item bg3">3</div>
+        <div class="item bg4">4</div>
+    </div>
+    <script>
+        //获取元素
+        var oNav=document.getElementById('nav')
+        var oMain=document.getElementById('main')
+        var aLi=oNav.getElementsByTagName('li')
+        var aDiv=oMain.getElementsByTagName('div')
+        //计算每个div的offsettop,把他们放到一个数组里
+        function offset(box){
+            var l=box.offsetLeft;
+            var t=box.offsetTop;
+            var p=box.offsetParent;
+            while(p.tagName!='BODY'){
+                l=l+p.offsetLeft+p.clientLeft;
+                t=t+p.offsetTop+p.clientTop;
+                p=p.offsetParent;
+            }
+            return {
+                left:l,
+                top:t
+            }
+        }
+        var arr=[];
+        for(var i=0;i<aDiv.length;i++){
+            arr.push(offset(aDiv[i]).top)
+        }
+        console.log(arr)
+        var itemr;
+        for(var j=0;j<aLi.length;j++){
+            aLi[j].index=j;
+            aLi[j].onclick=function(){
+                clearInterval(itemr)//怕之前的没执行完，互相影响
+                var _this=this;
+                var del=arr[this.index]-document.documentElement.scrollTop;
+                var c=arr[_this.index]-document.documentElement.scrollTop
+                var d=5;
+                var t=0;
+                var b=document.documentElement.scrollTop
+                // for(var n=0;n<aLi.length;n++){
+                //     aLi[n].className=""
+                // }
+                clearSiblings()
+                aLi[_this.index].className+=" active"
+                itemr=setInterval(function(){
+                if (arr[_this.index]==document.documentElement.scrollTop){
+                    clearInterval(itemr);
+                }else{
+                    // if(del<=0){
+                    //     document.documentElement.scrollTop-=20;
+                    // }else{
+                    //     document.documentElement.scrollTop+=20;
+                    // }
+                    //c/d*t+b
+                    t++
+                    if(c<0){
+                        document.documentElement.scrollTop=b-Math.abs(c)/d*t
+                    }else{
+                        document.documentElement.scrollTop=Math.abs(c)/d*t+b
+                    }
+                   
+                }
+            },60)
+            }
+        }
+        function clearSiblings(){
+            for(var i=0;i<aLi.length;i++){
+                aLi[i].className=aLi[i].className.replace('active','')
+            }
+        }
+
+        window.onscroll=function(){
+            //当前的offsettop和后面的offsettop之间
+            for(var i=0;i<arr.length;i++){
+                if(arr[i]>=document.documentElement.scrollTop){
+                    clearSiblings()
+                    aLi[i].className+=" active"
+                    return false
+                }
+            }
+        }
+            
+            
+
+        
+            
+  
+        
+    </script>
+</body>
+</html>
